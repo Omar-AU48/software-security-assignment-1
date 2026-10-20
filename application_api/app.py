@@ -98,5 +98,35 @@ def profile():
     except jwt.InvalidTokenError:
         return jsonify({"message": "Invalid token"}), 401
 
+@app.route("/admin", methods=["GET"])
+def admin():
+    auth_header = request.headers.get("Authorization")
+
+    if auth_header is None:
+        return jsonify({"message": "Authorization header missing"}), 401
+
+    if not auth_header.startswith("Bearer "):
+        return jsonify({"message": "Invalid authorization format"}), 401
+
+    token = auth_header.split(" ")[1]
+
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=["HS256"]
+        )
+
+        if payload["role"] != "admin":
+            return jsonify({"message": "Access denied"}), 403
+
+        return jsonify({"message": "Admin access"}), 200
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({"message": "Token expired"}), 401
+
+    except jwt.InvalidTokenError:
+        return jsonify({"message": "Invalid token"}), 401
+
 if __name__ == "__main__":
     app.run(port=5000)
