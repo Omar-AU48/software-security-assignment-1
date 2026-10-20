@@ -142,5 +142,22 @@ def get_document(document_id):
 
     return jsonify(response.json()), response.status_code
 
+@app.route("/documents", methods=["POST"])
+def create_document():
+    auth_header = request.headers.get("Authorization")
+
+    if auth_header is None:
+        return jsonify({"message": "No token"}), 401
+
+    data = request.get_json()
+
+    response = requests.post(
+        "http://127.0.0.1:5001/documents",
+        headers={"Authorization": auth_header},
+        json=data
+    )
+
+    return jsonify(response.json()), response.status_code
+
 if __name__ == "__main__":
     app.run(port=5000)
