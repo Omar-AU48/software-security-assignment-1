@@ -57,5 +57,46 @@ def get_document(document_id):
 
     return jsonify(document), 200
 
+@app.route("/documents", methods=["POST"])
+def create_document():
+    auth_header = request.headers.get("Authorization")
+
+    if auth_header is None:
+        return jsonify({"message": "No token"}), 401
+
+    if not auth_header.startswith("Bearer "):
+        return jsonify({"message": "Wrong token format"}), 401
+
+    token = auth_header.split(" ")[1]
+
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=["HS256"]
+        )
+    except jwt.ExpiredSignatureError:
+        return jsonify({"message": "Token expired"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"message": "Invalid token"}), 401
+
+    data = request.get_json()
+
+    title = data["title"]
+    content = data["content"]
+
+    new_id = str(len(documents) + 1)
+
+    documents[new_id] = {
+        "owner": payload["sub"],
+        "title": title,
+        "content": content
+    }
+
+    return jsonify({
+        "id": new_id,
+        "document": documents[new_id]
+    }), 201
+
 if __name__ == "__main__":
     app.run(port=5001)
