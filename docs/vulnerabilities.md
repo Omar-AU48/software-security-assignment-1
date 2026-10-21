@@ -60,3 +60,27 @@ The service accepted the filename and returned:
 `exports\../outside.txt`
 
 The `..` can move the file outside the intended exports folder.
+
+## Composition Vulnerability - Trust Between Services
+
+The Resource Service trusts the `X-User` header from the Processing Service.
+
+The header is not signed or verified by the Resource Service.
+
+Test:
+
+A request was sent directly to:
+
+`/internal/documents/2`
+
+with:
+
+`X-User: yamal`
+
+No JWT token was included.
+
+Result:
+
+The Resource Service returned Yamal's document.
+
+The authorization check exists, but it trusts identity information from another service without verifying it.

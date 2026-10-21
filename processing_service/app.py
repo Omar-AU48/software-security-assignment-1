@@ -2,12 +2,17 @@ from flask import Flask, request, jsonify
 import requests
 from export_helper.formatter import make_export
 import os
+import jwt
 
 app = Flask(__name__)
+
+SECRET_KEY = "omarassignmentkey123456789012345"
+
 
 @app.route("/")
 def home():
     return "Processing Service is running"
+
 
 @app.route("/export/<document_id>", methods=["GET"])
 def export_document(document_id):
@@ -16,9 +21,19 @@ def export_document(document_id):
     if auth_header is None:
         return jsonify({"message": "No token"}), 401
 
+    token = auth_header.split(" ")[1]
+
+    payload = jwt.decode(
+        token,
+        SECRET_KEY,
+        algorithms=["HS256"]
+    )
+
+    username = payload["sub"]
+
     response = requests.get(
-        f"http://127.0.0.1:5001/documents/{document_id}",
-        headers={"Authorization": auth_header}
+        f"http://127.0.0.1:5001/internal/documents/{document_id}",
+        headers={"X-User": username}
     )
 
     if response.status_code != 200:
@@ -31,6 +46,7 @@ def export_document(document_id):
     return jsonify({
         "export": export_text
     }), 200
+
 
 @app.route("/save-export/<document_id>", methods=["POST"])
 def save_export(document_id):
@@ -61,6 +77,7 @@ def save_export(document_id):
         file.write(export_text)
 
     return jsonify({"message": "Export saved", "path": path}), 200
+
 
 if __name__ == "__main__":
     app.run(port=5002)
