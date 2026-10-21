@@ -109,6 +109,30 @@ def create_document():
 
 @app.route("/all-documents", methods=["GET"])
 def get_all_documents():
+    auth_header = request.headers.get("Authorization")
+
+    if auth_header is None:
+        return jsonify({"message": "No token"}), 401
+
+    if not auth_header.startswith("Bearer "):
+        return jsonify({"message": "Wrong token format"}), 401
+
+    token = auth_header.split(" ")[1]
+
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=["HS256"]
+        )
+    except jwt.ExpiredSignatureError:
+        return jsonify({"message": "Token expired"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"message": "Invalid token"}), 401
+
+    if payload["role"] != "admin":
+        return jsonify({"message": "Access denied"}), 403
+
     return jsonify(documents), 200
 
 @app.route("/internal/documents/<document_id>", methods=["GET"])
