@@ -82,8 +82,17 @@ def create_document():
 
     data = request.get_json()
 
-    title = data["title"]
-    content = data["content"]
+    if data is None:
+        return jsonify({"message": "No data"}), 400
+
+    title = data.get("title")
+    content = data.get("content")
+
+    if not isinstance(title, str) or title.strip() == "":
+        return jsonify({"message": "Title is required"}), 400
+
+    if not isinstance(content, str) or content.strip() == "":
+        return jsonify({"message": "Content is required"}), 400
 
     new_id = str(len(documents) + 1)
 
