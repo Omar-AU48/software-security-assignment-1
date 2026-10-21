@@ -56,7 +56,16 @@ def save_export(document_id):
         return jsonify({"message": "No token"}), 401
 
     data = request.get_json()
-    filename = data["filename"]
+
+    if data is None:
+        return jsonify({"message": "No data"}), 400
+
+    filename = data.get("filename")
+
+    if not isinstance(filename, str) or filename.strip() == "":
+        return jsonify({"message": "Filename is required"}), 400
+
+    safe_filename = os.path.basename(filename)
 
     response = requests.get(
         f"http://127.0.0.1:5001/documents/{document_id}",
@@ -71,7 +80,7 @@ def save_export(document_id):
 
     os.makedirs("exports", exist_ok=True)
 
-    path = os.path.join("exports", filename)
+    path = os.path.join("exports", safe_filename)
 
     with open(path, "w") as file:
         file.write(export_text)
