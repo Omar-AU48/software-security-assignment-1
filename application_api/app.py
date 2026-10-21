@@ -159,5 +159,19 @@ def create_document():
 
     return jsonify(response.json()), response.status_code
 
+@app.route("/export/<document_id>", methods=["GET"])
+def export_document(document_id):
+    auth_header = request.headers.get("Authorization")
+
+    if auth_header is None:
+        return jsonify({"message": "No token"}), 401
+
+    response = requests.get(
+        f"http://127.0.0.1:5002/export/{document_id}",
+        headers={"Authorization": auth_header}
+    )
+
+    return jsonify(response.json()), response.status_code
+
 if __name__ == "__main__":
     app.run(port=5000)
