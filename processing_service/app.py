@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import requests
+from export_helper.formatter import make_export
 
 app = Flask(__name__)
 
@@ -24,11 +25,7 @@ def export_document(document_id):
 
     document = response.json()
 
-    export_text = (
-        f"Title: {document['title']}\n"
-        f"Owner: {document['owner']}\n"
-        f"Content: {document['content']}"
-    )
+    export_text = make_export(document)
 
     return jsonify({
         "export": export_text
