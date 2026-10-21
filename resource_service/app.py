@@ -135,19 +135,5 @@ def get_all_documents():
 
     return jsonify(documents), 200
 
-@app.route("/internal/documents/<document_id>", methods=["GET"])
-def internal_document(document_id):
-    username = request.headers.get("X-User")
-
-    document = documents.get(document_id)
-
-    if document is None:
-        return jsonify({"message": "Document not found"}), 404
-
-    if document["owner"] != username:
-        return jsonify({"message": "Access denied"}), 403
-
-    return jsonify(document), 200
-
 if __name__ == "__main__":
     app.run(port=5001)
