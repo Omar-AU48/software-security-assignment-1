@@ -98,5 +98,9 @@ def create_document():
         "document": documents[new_id]
     }), 201
 
+@app.route("/all-documents", methods=["GET"])
+def get_all_documents():
+    return jsonify(documents), 200
+
 if __name__ == "__main__":
     app.run(port=5001)
