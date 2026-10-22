@@ -1,23 +1,24 @@
 from flask import Flask, request, jsonify
 import requests
 import jwt
+import os
 from datetime import datetime, timedelta, timezone
 
 app = Flask(__name__)
 
-SECRET_KEY = "omarassignmentkey123456789012345"
+SECRET_KEY = os.environ["JWT_SECRET"]
 
 users = {
     "omar": {
-        "password": "omar123",
+        "password": os.environ["OMAR_PASSWORD"],
         "role": "user"
     },
     "yamal": {
-        "password": "yamal123",
+        "password": os.environ["YAMAL_PASSWORD"],
         "role": "user"
     },
     "admin": {
-        "password": "admin123",
+        "password": os.environ["ADMIN_PASSWORD"],
         "role": "admin"
     }
 }
@@ -28,12 +29,18 @@ def home():
 
 @app.route("/resource-check")
 def resource_check():
-    response = requests.get("http://127.0.0.1:5001/")
+    response = requests.get(
+        "http://127.0.0.1:5001/",
+        timeout=5
+    )
     return response.text
 
 @app.route("/processing-check")
 def processing_check():
-    response = requests.get("http://127.0.0.1:5002/")
+    response = requests.get(
+        "http://127.0.0.1:5002/",
+        timeout=5
+    )
     return response.text
 
 @app.route("/login", methods=["POST"])
@@ -52,10 +59,10 @@ def login():
         return jsonify({"message": "Invalid username or password"}), 401
 
     payload = {
-    "sub": username,
-    "role": user["role"],
-    "exp": datetime.now(timezone.utc) + timedelta(hours=1)
-}
+        "sub": username,
+        "role": user["role"],
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1)
+    }
 
     token = jwt.encode(
         payload,
@@ -137,7 +144,8 @@ def get_document(document_id):
 
     response = requests.get(
         f"http://127.0.0.1:5001/documents/{document_id}",
-        headers={"Authorization": auth_header}
+        headers={"Authorization": auth_header},
+        timeout=5
     )
 
     return jsonify(response.json()), response.status_code
@@ -154,7 +162,8 @@ def create_document():
     response = requests.post(
         "http://127.0.0.1:5001/documents",
         headers={"Authorization": auth_header},
-        json=data
+        json=data,
+        timeout=5
     )
 
     return jsonify(response.json()), response.status_code
@@ -168,7 +177,8 @@ def export_document(document_id):
 
     response = requests.get(
         f"http://127.0.0.1:5002/export/{document_id}",
-        headers={"Authorization": auth_header}
+        headers={"Authorization": auth_header},
+        timeout=5
     )
 
     return jsonify(response.json()), response.status_code

@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify
 import jwt
+import os
 
 app = Flask(__name__)
 
-SECRET_KEY = "omarassignmentkey123456789012345"
+SECRET_KEY = os.environ["JWT_SECRET"]
 
 documents = {
     "1": {

@@ -20,7 +20,8 @@ def export_document(document_id):
 
     response = requests.get(
         f"http://127.0.0.1:5001/documents/{document_id}",
-        headers={"Authorization": auth_header}
+        headers={"Authorization": auth_header},
+        timeout=5
     )
 
     if response.status_code != 200:
@@ -56,7 +57,8 @@ def save_export(document_id):
 
     response = requests.get(
         f"http://127.0.0.1:5001/documents/{document_id}",
-        headers={"Authorization": auth_header}
+        headers={"Authorization": auth_header},
+        timeout=5
     )
 
     if response.status_code != 200:
