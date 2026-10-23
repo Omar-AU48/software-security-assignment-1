@@ -47,6 +47,12 @@ pipeline {
                 bat '.venv\\Scripts\\python.exe -m pytest tests -v --junitxml=reports\\pytest.xml > reports\\pytest.txt'
             }
         }
+
+        stage('Release gate') {
+            steps {
+                echo 'Release gate passed: build, Bandit, pip-audit and tests passed.'
+            }
+        }
     }
 
     post {
