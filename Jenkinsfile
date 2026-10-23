@@ -28,7 +28,7 @@ pipeline {
 
         stage('Dependency analysis') {
             steps {
-                bat '.venv\\Scripts\\python.exe -m pip_audit -r requirements.txt > reports\\pip-audit.txt'
+                bat '.venv\\Scripts\\python.exe -m pip_audit -r requirements.txt > reports\\pip-audit.txt 2>&1'
             }
         }
 
