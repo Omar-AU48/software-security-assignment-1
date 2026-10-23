@@ -2,6 +2,8 @@ pipeline {
     agent any
 
     environment {
+        PYTHON = 'C:\\Users\\omarm\\AppData\\Local\\Programs\\Python\\Python314\\python.exe'
+
         JWT_SECRET = credentials('jwt-secret')
         OMAR_PASSWORD = credentials('omar-password')
         YAMAL_PASSWORD = credentials('yamal-password')
@@ -9,38 +11,39 @@ pipeline {
     }
 
     stages {
-        stage('Install dependencies') {
+        stage('Setup') {
             steps {
-                bat 'python -m pip install -r requirements.txt'
-                bat 'python -m pip install -e helper_package'
+                bat '"%PYTHON%" -m venv .venv'
+                bat '.venv\\Scripts\\python.exe -m pip install -r requirements.txt'
+                bat '.venv\\Scripts\\python.exe -m pip install -e helper_package'
             }
         }
 
         stage('Static analysis') {
             steps {
                 bat 'if not exist reports mkdir reports'
-                bat 'bandit -r application_api resource_service processing_service > reports\\bandit.txt'
+                bat '.venv\\Scripts\\python.exe -m bandit -r application_api resource_service processing_service > reports\\bandit.txt'
             }
         }
 
         stage('Dependency analysis') {
             steps {
-                bat 'pip-audit -r requirements.txt > reports\\pip-audit.txt'
+                bat '.venv\\Scripts\\python.exe -m pip_audit -r requirements.txt > reports\\pip-audit.txt'
             }
         }
 
         stage('Start services') {
             steps {
-                bat 'start "" /B python resource_service\\app.py > reports\\resource_service.log 2>&1'
-                bat 'start "" /B python processing_service\\app.py > reports\\processing_service.log 2>&1'
-                bat 'start "" /B python application_api\\app.py > reports\\application_api.log 2>&1'
+                bat 'start "" /B .venv\\Scripts\\python.exe resource_service\\app.py > reports\\resource_service.log 2>&1'
+                bat 'start "" /B .venv\\Scripts\\python.exe processing_service\\app.py > reports\\processing_service.log 2>&1'
+                bat 'start "" /B .venv\\Scripts\\python.exe application_api\\app.py > reports\\application_api.log 2>&1'
                 bat 'timeout /t 3 /nobreak'
             }
         }
 
         stage('Tests') {
             steps {
-                bat 'python -m pytest tests -v --junitxml=reports\\pytest.xml > reports\\pytest.txt'
+                bat '.venv\\Scripts\\python.exe -m pytest tests -v --junitxml=reports\\pytest.xml > reports\\pytest.txt'
             }
         }
     }
