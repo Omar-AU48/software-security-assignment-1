@@ -37,7 +37,7 @@ pipeline {
                 bat 'start "" /B .venv\\Scripts\\python.exe resource_service\\app.py > reports\\resource_service.log 2>&1'
                 bat 'start "" /B .venv\\Scripts\\python.exe processing_service\\app.py > reports\\processing_service.log 2>&1'
                 bat 'start "" /B .venv\\Scripts\\python.exe application_api\\app.py > reports\\application_api.log 2>&1'
-                bat 'timeout /t 3 /nobreak'
+                powershell 'Start-Sleep -Seconds 3'
             }
         }
 
