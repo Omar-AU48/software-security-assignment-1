@@ -13,6 +13,7 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
+                bat 'if exist .venv rmdir /s /q .venv'
                 bat '"%PYTHON%" -m venv .venv'
                 bat '.venv\\Scripts\\python.exe -m pip install -r requirements.txt'
                 bat '.venv\\Scripts\\python.exe -m pip install -e helper_package'
